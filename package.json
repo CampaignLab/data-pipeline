@@ -4,7 +4,9 @@
   "description": "convert xlsx to csv using js-xlsx",
   "main": "index.js",
   "dependencies": {
+    "excelcsv": "^0.1.2",
     "webcharts": "^1.10.0",
+    "xlsx": "^0.13.3",
     "xlsx-style": "^0.8.13"
   },
   "devDependencies": {},

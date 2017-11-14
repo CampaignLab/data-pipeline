@@ -1,0 +1,2 @@
+var XLSX = {};
+(function(XLSX){
