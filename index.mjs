@@ -10,6 +10,12 @@ const fileIn ='../test.xls'
 switch (using) {
   case 'xlsx' : {
     var workbook = XLSX.readFile(fileIn);
+    
+    var { opts, Directory, SheetNames, Sheets } = workbook;
+
+      console.log({ opts, Directory, SheetNames });
+      console.log(Object.keys (Sheets['CT0790']).join(' # '));
+      console.log('one bit: ',Sheets['CT0790'].D12.v);
 
     break
   }
