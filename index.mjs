@@ -1,53 +1,17 @@
 import doStuff from './xlsx-csv-convert';
-import excelCSV from 'excelcsv';
-import XLSX from 'xlsx';
+import sheetParsers from './xlsx-sheet-parsers';
 
-const using='xlsx'
+const { onsWithRowHierarchy } = sheetParsers;
 
 const fileIn ='../test.xls'
   , fileOut ='result.csv';
 
-switch (using) {
-  case 'xlsx' : {
-    var workbook = XLSX.readFile(fileIn);
-    
-    var { opts, Directory, SheetNames, Sheets } = workbook;
-
-      console.log({ opts, Directory, SheetNames });
-      console.log(Object.keys (Sheets['CT0790']).join(' # '));
-      console.log('one bit: ',Sheets['CT0790'].D12.v);
-
-    break
-  }
-
-  case 'excelcsv' : {
-    console.log("excelcsv seems to give 'Error: Corrupted zip : can't find end of central directory'");
-
-    // const header  = ['id', 'email']
-    //
-    // // fileOut is optional.
-    // var parser = new excelCSV( fileIn, fileOut );
-    // var csv = parser
-    //
-    // // optional.
-    // // .header( header )
-    // // optional.
-    // .row(function(worksheet, row) {
-    //   // Transform data here or return false to skip the row.
-    //   return row;
-    // })
-    // .init();
-    break
-  }
-
-  case 'xlsx-csv-convert' : {
+//  Didn't use excelcsv as it seems to give 'Error: Corrupted zip : can't find end of central directory'");
 
     var workbook = doStuff (fileIn, 'local');
     var { opts, Directory, SheetNames, Sheets } = workbook;
-
-      console.log({ opts, Directory, SheetNames });
-      console.log(Object.keys (Sheets['CT0790']).join(' # '));
-      console.log('one bit: ',Sheets['CT0790'].D12.v);
+    console.log({ opts, Directory, SheetNames });
+    onsWithRowHierarchy (Sheets['CT0790']);
 
     // workbook.keys= {
     // opts:
@@ -91,10 +55,3 @@ switch (using) {
     //   CompObjP: undefined,
     //   FILENAME: '../test.xls'
     // }
-    break
-  }
-
-  default : {
-    console.log('no .xls/x parser package specificed to use. (So edit the constant in the code)');
-  }
-}

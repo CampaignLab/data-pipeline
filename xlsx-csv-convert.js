@@ -2,6 +2,9 @@
 const webCharts = require ('webcharts');
 const XLSX = require ('xlsx-style');
 
+const fileIn ='../test.xls'
+  , fileOut ='result.csv';
+
 const doStuff = (filename, accessType) => {
   var workbook;
   accessType = accessType || 'local';
@@ -9,7 +12,7 @@ const doStuff = (filename, accessType) => {
   console.log(__dirname);
 
   if (accessType=='local')
-    workbook = XLSX.readFile('../test.xls');
+    workbook = XLSX.readFile(fileIn);
 
   // /* Ajax using XMLHttpRequest */
   // if (accessType=='ajax') {
@@ -20,7 +23,7 @@ const doStuff = (filename, accessType) => {
   //   oReq.responseType = "arraybuffer";
   //
   //   oReq.onload = function(e) {
-  //     var arraybuffer = oReq.response;
+  //     var arraybuffer = oReq.response;module.exports
   //
   //     /* convert data to binary string */
   //     var data = new Uint8Array(arraybuffer);
