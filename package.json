@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "excelcsv": "^0.1.2",
+    "stream-meter": "^1.0.4",
     "webcharts": "^1.10.0",
     "xlsx": "^0.13.3",
     "xlsx-style": "^0.8.13"

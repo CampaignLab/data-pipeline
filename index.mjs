@@ -1,7 +1,9 @@
-import doStuff from './xlsx-csv-convert';
+// import { xlsxRead, csvWrite } from './xlsx-csv-convert';
+import fileOperations from './xlsx-csv-convert';
 import sheetParsers from './xlsx-sheet-parsers';
 import trims from './dataset-specific-trims';
 
+const { xlsxRead, csvWrite } = fileOperations;
 const { onsWithRowHierarchy } = sheetParsers;
 
 const fileIn ='../test.xls'
@@ -9,12 +11,13 @@ const fileIn ='../test.xls'
 
 //  Didn't use excelcsv as it seems to give 'Error: Corrupted zip : can't find end of central directory'");
 
-    var workbook = doStuff (fileIn, 'local');
+    var workbook = xlsxRead ('local',fileIn);
     var { opts, Directory, SheetNames, Sheets } = workbook;
     console.log({ opts, Directory, SheetNames });
     const sheet = onsWithRowHierarchy (Sheets['CT0790'], trims['CT0790']);
 
     console.log(Object.keys(sheet).slice(0,300).join(' # '));
+    csvWrite (sheet);
 
 
     // workbook.keys= {

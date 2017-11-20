@@ -4,7 +4,7 @@
 
 
 
-import doStuff from './xlsx-csv-convert';
+// import { xlsxRead, csvWrite } from './xlsx-csv-convert';
 import decoders from './GSS-decoders';
 
 
@@ -12,22 +12,27 @@ const {isGssCode, startsWithGssCode, whatIs} = decoders;
 
 const splitterRegex = /^([a-zA-z]{1,2})(\d{1,})/;
 
+const colNumber = (colLetters) => {
+  let xNum = colLetters.charCodeAt(0)-64;
+  if (xNum >= 32)
+    xNum -= 32;
+  if (colLetters.length==2) {
+    xNum *= 26;
+    let secondXNum = colLetters.charCodeAt(1)-64;
+    if (secondXNum >= 32)
+      secondXNum -= 32;
+    xNum += secondXNum;
+  }
+  return xNum
+}
+
 // amount is optional  - single arg just increments
 const incX = (cell, amount) => {
   let [success,x,y] = cell.match(splitterRegex);
   if (!success)
     return null;
-  let xNum = x.charCodeAt(0)-64;
-  if (xNum >= 32)
-    xNum -= 32;
-  if (x.length==2) {
-    xNum *= 26;
-    let secondXNum = x.charCodeAt(1)-64;
-    if (secondXNum >= 32)
-      secondXNum -= 32;
-    xNum += secondXNum;
-  }
 
+  let xNum = colNumber(x);
   xNum += (amount || 1);
 
   if (xNum >702)
@@ -191,4 +196,4 @@ const onsWithRowHierarchy = (sheet, trim) => {
 
 };
 
-export default {onsWithRowHierarchy}
+export default { onsWithRowHierarchy, colNumber }
