@@ -1,5 +1,6 @@
 import doStuff from './xlsx-csv-convert';
 import sheetParsers from './xlsx-sheet-parsers';
+import trims from './dataset-specific-trims';
 
 const { onsWithRowHierarchy } = sheetParsers;
 
@@ -11,7 +12,10 @@ const fileIn ='../test.xls'
     var workbook = doStuff (fileIn, 'local');
     var { opts, Directory, SheetNames, Sheets } = workbook;
     console.log({ opts, Directory, SheetNames });
-    onsWithRowHierarchy (Sheets['CT0790']);
+    const sheet = onsWithRowHierarchy (Sheets['CT0790'], trims['CT0790']);
+
+    console.log(Object.keys(sheet).slice(0,300).join(' # '));
+
 
     // workbook.keys= {
     // opts:

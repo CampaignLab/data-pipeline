@@ -93,6 +93,7 @@ const restOfRowEmpty = (sheet, startCell, stopAt) => {
   return true;
 };
 
+
 // Simply removes the columns and leaves an empty space.
 // This avoids copying the entire dataset to a new sheet.
 // It therefore mutates sheet.
@@ -140,7 +141,7 @@ const trimTheEasyWay = (sheet, rows, columns, mergeRowHeaders, mergeFunction) =>
 }
 
 
-const onsWithRowHierarchy = sheet => {
+const onsWithRowHierarchy = (sheet, trim) => {
 
   console.log(Object.keys(sheet).slice(0,300).join(' # '));
   console.log('accesing data example: ', sheet.D12);
@@ -185,9 +186,8 @@ const onsWithRowHierarchy = sheet => {
   console.log('and the data starts at cell ',dataStart);
 
 
-  trimTheEasyWay (sheet, ['1','2','3','4','5','6','7','8','9','10','370','371','372','373','374','375','376','377','378','379','380','381','382','383','384','385','386'],
-    ['A','B'], true)
-  console.log(Object.keys(sheet).slice(0,300).join(' # '));
+  trimTheEasyWay (sheet, trim.rows, trim.cols, true)
+  return sheet
 
 };
 
