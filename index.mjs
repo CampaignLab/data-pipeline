@@ -14,11 +14,9 @@ const fileIn ='../test.xls'
     var workbook = xlsxRead ('local',fileIn);
     var { opts, Directory, SheetNames, Sheets } = workbook;
     console.log({ opts, Directory, SheetNames });
-    const sheet = onsWithRowHierarchy (Sheets['CT0790'], trims['CT0790']);
+    var sheet = onsWithRowHierarchy (Sheets['CT0790'], trims['CT0790']);
 
-    console.log(Object.keys(sheet).slice(0,300).join(' # '));
-    csvWrite (sheet);
-
+    csvWrite (sheet, undefined, trims['CT0790']);
 
     // workbook.keys= {
     // opts:

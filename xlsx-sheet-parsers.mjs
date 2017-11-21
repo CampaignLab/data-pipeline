@@ -6,8 +6,6 @@
 
 // import { xlsxRead, csvWrite } from './xlsx-csv-convert';
 import decoders from './GSS-decoders';
-
-
 const {isGssCode, startsWithGssCode, whatIs} = decoders;
 
 const splitterRegex = /^([a-zA-z]{1,2})(\d{1,})/;
@@ -33,36 +31,73 @@ const colLetters = (colNumber) => {
   return x
 }
 
-// amount is optional  - single arg just increments
-const incX = (cell, amount) => {
-  let [success,x,y] = cell.match(splitterRegex);
-  if (!success)
-    return null;
+// return {x,y} where x= highest column letter, y = highest row number (number)
+const maxes = (sheet) => {
+  const cells = Object.keys(sheet);
+  let x='A';
+  let y= 1;
 
-  let xNum = colNumber(x);
-  xNum += (amount || 1);
-
-  if (xNum >702)
-    throw new Error ("From "+cell+" - More than 702 columns? You mad?");
-  // Don't throw if decrementing to/below zero - return null so we can use it in loops.
-  if (xNum <1)
-    return null;
-
-    x = colLetters(xNum);
-
-  return x+y;
+  cells.forEach (cell => {
+    const [success, col, row] = cell.match(splitterRegex) || [null];
+if ((row==12) || (row==13) || (row==11) || (row==347) || (row==347) || (row==347))
+    // console.log('.',[success, col, row]);
+    if (success) {
+      if (colNumber(col) > colNumber(x))
+        x=col;
+      if (parseInt(row)>y)
+        y=parseInt(row);
+    }
+  })
+  return {x,y}
 }
 
 // amount is optional  - single arg just increments
-const incY = (cell, amount) => {
-  var [success,x,y] = cell.match(splitterRegex);
-  if (!success)
-    return null;
+// if cell==false, then return a function which will do the increment
+const incX = (cell, amount) => {
+  // create an incrementor function
+  const closure = cell => {
+    // perform the increment if we can and return the result
+    let [success,x,y] = cell.match(splitterRegex);
+    if (!success)
+      return null;
 
-  y = parseInt(y);
-  y += (amount || 1);
-  return y >0 ? x+y
-    : null;
+    let xNum = colNumber(x);
+    xNum += (amount || 1);
+    if (xNum >702)
+      throw new Error ("From "+cell+" - More than 702 columns? You mad?");
+    // Don't throw if decrementing to/below zero - return null so we can use it in loops.
+    if (xNum <1)
+      return null;
+
+    x = colLetters(xNum);
+    return x+y;
+  }
+
+  // apply the incrementor function to cell if we have cell, else return the incrementor function
+  return cell?
+    closure (cell)
+    : closure
+}
+
+// amount is optional  - single arg just increments
+// if cell==false, then return a function which will do the increment
+const incY = (cell, amount) => {
+  // create an incrementor function
+  const closure = cell => {
+    var [success,x,y] = cell.match(splitterRegex);
+    if (!success)
+      return null;
+
+    y = parseInt(y);
+    y += (amount || 1);
+    return y >0 ? x+y
+      : null;
+  }
+
+  // apply the incrementor function to cell if we have cell, else return the incrementor function
+  return cell?
+    closure (cell)
+    : closure
 }
 
 // returns true or false. Previously returned null when given empty startCell.
@@ -104,15 +139,82 @@ const restOfRowEmpty = (sheet, startCell, stopAt) => {
 };
 
 
+const canonical = key => {
+  const [success, col, row] = key.match(splitterRegex) || [null];
+  return success?
+    (row<<10) + colNumber(col)                //NB cols max 702
+    : null
+}
+
+const orderLeftToRightTopToBottom = keys =>
+  keys.sort ((a,b) => canonical(a) - canonical(b)) ;
+
+
+// WARNING: This is naughty JS!
+// per spec, you CANNOT rely on an object ordering its keys, as objects are unordered.
+// But I'm going to do it anyway and refactor 'one day'
+// You can also use orderLeftToRightTopToBottom to create an ordered array of keys
+// and work from that. But that might take some time!
+const mergeInOrder = (sheet, mergeList) => {
+  if (Object.keys(mergeList).length === 0)
+    return sheet
+  let sheetKeys = Object.keys (sheet);
+  let newKeys = Object.keys (mergeList);
+  newKeys = orderLeftToRightTopToBottom (newKeys);
+  const merged = {};
+  for (const key in sheet)
+    if (!newKeys.length)
+      merged[key] = sheet[key]
+    else {
+      const sheetCanonical = canonical(key);
+      const newCanonical = canonical(newKeys[0]);
+      if (newCanonical > sheetCanonical)
+        merged[key] = sheet[key]
+      else {
+        if (newCanonical === sheetCanonical)
+          console.log(`Overwriting sheet.${key}= '${sheet[key].v}' with mergeList.${key}= '${mergeList[key].v}' \n`);
+        merged[newKeys[0]] = mergeList[newKeys[0]];
+        newKeys.shift();
+      }
+    }
+  newKeys.forEach (key=> {
+    merged[key] = mergeList[key];
+  })
+  return merged
+}
+
+
+const compoundHeader = (sheet, keys, separator) => {
+  const headerParts = [];
+  keys.forEach (key => {
+    if (sheet[key] && sheet[key].v)
+      headerParts.push (sheet[key].v)
+  })
+  return headerParts.join(separator)
+}
+
+
 // Simply removes the columns and leaves an empty space.
-// This avoids copying the entire dataset to a new sheet.
-// It therefore mutates sheet.
+// This was avoid copying the entire dataset to a new sheet.
+// This function mutates sheet after calling pure function createKillAndMergeListFromTrim.
 // rows is an array of stringy numbers.
 // Both rows and columns are optional.
 // mergeRowHeaders operates with or without a merge function but,
-// if provided, mergeFunction must mutate sheet.
-const trimTheEasyWay = (sheet, rows, columns, mergeRowHeaders, mergeFunction) => {
+// if provided, mergeFunction currently is required to mutate sheet and therefore make createKillAndMergeListFromTrim impure.
+const trimTheEasyWay = (sheet, trim, mergeRowHeaders, mergeFunction) => {
+  const { killList, mergeList }  = createKillAndMergeListFromTrim (sheet, trim, mergeRowHeaders, mergeFunction)
+  killList.forEach (key => {
+    delete (sheet[key]);
+  });
+
+  return mergeInOrder (sheet, mergeList);
+}
+
+// Non-mutating part of trimTheEasyWay. Returns { killList, mergeList }  to be dealt with as appropriate.
+// killList is array, mergeList is object
+const createKillAndMergeListFromTrim = (sheet, trim, mergeRowHeaders, mergeFunction) => {
   const killList = [];
+  const mergeList = [];
   // console.log(Object.keys(sheet));
   let str =''
   Object.keys(sheet).forEach (key=>{str+=key});
@@ -120,41 +222,42 @@ const trimTheEasyWay = (sheet, rows, columns, mergeRowHeaders, mergeFunction) =>
     if (key != '!range' && key != '!ref' && key !='!merges') {
       // console.log(key);
       let [success,x,y] = key.match(splitterRegex);
-      if (rows.includes(y))
+      if (trim.rows.includes(y))
         killList.push (key)
       else
-        if (columns.includes(x)) {
+        if (trim.cols.includes(x)) {
           killList.push (key);
           if (mergeRowHeaders && sheet[key]) {
             if (mergeFunction)
-              mergeFunction (key)
+              mergeFunction (mergeList, key)
             else {
-              if (x='A') {
-                if (!sheet[incX(key,2)])
-                  sheet[incX(key,2)] = Object.assign ({},sheet[key])
-                sheet[incX(key,2)].v = (sheet[key].v || '' ) + ( sheet[incX(key,2)].v || '') + (sheet[incX(key,2)].v || '')
-              }
-              if (x='B' && !sheet[incX(key,-1)] ) {
-                if (!sheet[incX(key,1)])
-                  sheet[incX(key,1)] = Object.assign ({},sheet[key])
-                sheet[incX(key,1)].v = (sheet[key].v || '' ) + (sheet[incX(key,1)].v || '')
-              }
+              // default merge function- Assume rows A&B merged into C
+              // do not overwrite C if it somehow exists already
+              // but if no C, then add a C to mergeList and populate with join of A and/or B's and/or C's contents
+              if (x==='A')
+                if (!mergeList[incX(key,2)]) {
+                  mergeList[incX(key,2)] = Object.assign (
+                    {}, sheet[key], {v: compoundHeader (sheet, [key, incX(key,1), incX(key,2)])} )
+                }
+              if (x==='B' && !sheet[incX(key,-1)] )
+                if (!mergeList[incX(key,1)]) {
+                  mergeList[incX(key,1)] = Object.assign (
+                    {}, sheet[key], {v: compoundHeader (sheet, [key, incX(key,1)])} )
+                }
             }
           }
         }
    }
   });
-
-  killList.forEach (key => {
-    delete (sheet[key]);
-  });
+  return { killList, mergeList }
 }
+
 
 
 const onsWithRowHierarchy = (sheet, trim) => {
 
-  console.log(Object.keys(sheet).slice(0,300).join(' # '));
-  console.log('accesing data example: ', sheet.D12);
+  // console.log(Object.keys(sheet).slice(0,300).join(' # '));
+  // console.log('accesing data example: ', sheet.D12);
 
 
   let current = 'A1';
@@ -196,9 +299,9 @@ const onsWithRowHierarchy = (sheet, trim) => {
   console.log('and the data starts at cell ',dataStart);
 
 
-  trimTheEasyWay (sheet, trim.rows, trim.cols, true)
+  sheet = trimTheEasyWay (sheet, trim, true)
   return sheet
 
 };
 
-export default { onsWithRowHierarchy, colNumber, colLetters}
+export default { onsWithRowHierarchy, colNumber, colLetters, maxes}
