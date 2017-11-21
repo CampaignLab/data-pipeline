@@ -5,7 +5,7 @@ import XLSX from 'xlsx-style';
 
 // const meter = require("stream-meter");
 
-import colNumber from './xlsx-sheet-parsers';
+import { colNumber, colLetters } from './xlsx-sheet-parsers';
 
 const fileInDefault ='../test.xls'
   , fileOutDefault ='result.csv';

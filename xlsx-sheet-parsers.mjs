@@ -26,6 +26,13 @@ const colNumber = (colLetters) => {
   return xNum
 }
 
+const colLetters = (colNumber) => {
+  let x = colNumber>26? String.fromCharCode(64+Math.floor((colNumber-1)/26))
+   : '';
+  x += String.fromCharCode(65+(colNumber-1)%26);
+  return x
+}
+
 // amount is optional  - single arg just increments
 const incX = (cell, amount) => {
   let [success,x,y] = cell.match(splitterRegex);
@@ -41,9 +48,7 @@ const incX = (cell, amount) => {
   if (xNum <1)
     return null;
 
-  x = xNum>26? String.fromCharCode(64+Math.floor((xNum-1)/26))
-   : '';
-  x += String.fromCharCode(65+(xNum-1)%26);
+    x = colLetters(xNum);
 
   return x+y;
 }
@@ -196,4 +201,4 @@ const onsWithRowHierarchy = (sheet, trim) => {
 
 };
 
-export default { onsWithRowHierarchy, colNumber }
+export default { onsWithRowHierarchy, colNumber, colLetters}
