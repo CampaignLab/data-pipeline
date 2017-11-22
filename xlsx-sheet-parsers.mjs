@@ -1,7 +1,7 @@
-// This code relies on cells being ordered in memory from the top left of the sheet.
+// This code relies on cells being ordered from the top left of the sheet.
 // Anything else will break the logic in restOfRowEmpty when called without stopAt and,
 // more importantly, in trim() (which will corrupt the data!)
-
+// Ordering objects is NOT part of the JS spec, so this should be built more professionally eventually.
 
 
 // import { xlsxRead, csvWrite } from './xlsx-csv-convert';
@@ -39,8 +39,6 @@ const maxes = (sheet) => {
 
   cells.forEach (cell => {
     const [success, col, row] = cell.match(splitterRegex) || [null];
-if ((row==12) || (row==13) || (row==11) || (row==347) || (row==347) || (row==347))
-    // console.log('.',[success, col, row]);
     if (success) {
       if (colNumber(col) > colNumber(x))
         x=col;
@@ -138,7 +136,6 @@ const restOfRowEmpty = (sheet, startCell, stopAt) => {
   return true;
 };
 
-
 const canonical = key => {
   if (key===undefined)
     return null
@@ -186,7 +183,7 @@ const mergeInOrder = (sheet, mergeList) => {
   newKeys.forEach (key=> {
     merged[key] = mergeList[key];
   })
-  console.log(Object.keys(merged).length, 'cells after merge\n');
+  console.log(`${Object.keys(merged).length} cells after merge\n`);
   return merged
 }
 
@@ -206,9 +203,9 @@ const compoundHeader = (sheet, keys, separator) => {
 // rows is an array of stringy numbers.
 // Both rows and columns are optional.
 // mergeRowHeaders operates with or without a merge function but,
-// if provided, mergeFunction currently is required to mutate sheet and therefore make createKillAndMergeListFromTrim impure.
+// if provided, mergeFunction currently must mutate sheet and therefore make createKillAndMergeListFromTrim impure.
 const trimTheEasyWay = (sheet, trim, mergeRowHeaders, mergeFunction) => {
-  const { killList, mergeList }  = createKillAndMergeListFromTrim (sheet, trim, mergeRowHeaders, mergeFunction)
+  const { killList, mergeList }  = createKillAndMergeListFromTrim (sheet, trim, mergeRowHeaders, mergeFunction);
   killList.forEach (key => {
     delete (sheet[key]);
   });
@@ -218,6 +215,7 @@ const trimTheEasyWay = (sheet, trim, mergeRowHeaders, mergeFunction) => {
 
 // Non-mutating part of trimTheEasyWay. Returns { killList, mergeList }  to be dealt with as appropriate.
 // killList is an array, mergeList is an object
+// if provided, mergeFunction currently must to mutate sheet.
 const createKillAndMergeListFromTrim = (sheet, trim, mergeRowHeaders, mergeFunction) => {
   const killList = [];
   const mergeList = {};
@@ -257,13 +255,9 @@ const createKillAndMergeListFromTrim = (sheet, trim, mergeRowHeaders, mergeFunct
 }
 
 
-
+// interpret a sheet of the form used by Office of National Statistics, where geographical row headers
+// occupy multiple columns hierarchically, eg A12: England, B13: North West, C14: Runcorn, C15: Warrington, B16: North East, C17: Gateshead, etc...
 const onsWithRowHierarchy = (sheet, trim) => {
-
-  // console.log(Object.keys(sheet).slice(0,300).join(' # '));
-  // console.log('accesing data example: ', sheet.D12);
-
-
   let current = 'A1';
   let dataStart = '';           // Best guess for top left data cell, see comment below
   let currentHeader = '';

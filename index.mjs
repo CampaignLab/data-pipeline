@@ -4,7 +4,7 @@ import sheetParsers from './xlsx-sheet-parsers';
 import trims from './dataset-specific-trims';
 
 const { xlsxRead, csvWrite } = fileOperations;
-const { onsWithRowHierarchy } = sheetParsers;
+const { onsWithRowHierarchy, maxes } = sheetParsers;
 
 const fileIn ='../test.xls'
   , fileOut ='result.csv';

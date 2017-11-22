@@ -1,10 +1,3 @@
-// 26 Aug :
-// TODO - D12, D13 and D347 are ending up blanked :(
-// TODO - end of document after last merge is getting cut off
-
-
-
-
 import fs from 'fs';
 import webCharts from 'webcharts';
 import XLSX from 'xlsx-style';
@@ -16,8 +9,8 @@ import sheetParsers from './xlsx-sheet-parsers';
 
 const { colNumber, colLetters, maxes } = sheetParsers;
 
-const fileInDefault ='../test.xls'
-  , fileOutDefault ='result.csv';
+const fileInDefault = '../test.xls';
+const fileOutDefault = 'result.csv';
 
 
 const xlsxRead = (accessType, fileIn = fileInDefault) => {
