@@ -140,6 +140,8 @@ const restOfRowEmpty = (sheet, startCell, stopAt) => {
 
 
 const canonical = key => {
+  if (key===undefined)
+    return null
   const [success, col, row] = key.match(splitterRegex) || [null];
   return success?
     (row<<10) + colNumber(col)                //NB cols max 702
@@ -162,24 +164,29 @@ const mergeInOrder = (sheet, mergeList) => {
   let newKeys = Object.keys (mergeList);
   newKeys = orderLeftToRightTopToBottom (newKeys);
   const merged = {};
+  console.log('existing cells:', sheetKeys.length);
+  console.log('new cells:', newKeys.length);
   for (const key in sheet)
     if (!newKeys.length)
       merged[key] = sheet[key]
     else {
       const sheetCanonical = canonical(key);
-      const newCanonical = canonical(newKeys[0]);
-      if (newCanonical > sheetCanonical)
-        merged[key] = sheet[key]
-      else {
-        if (newCanonical === sheetCanonical)
-          console.log(`Overwriting sheet.${key}= '${sheet[key].v}' with mergeList.${key}= '${mergeList[key].v}' \n`);
-        merged[newKeys[0]] = mergeList[newKeys[0]];
-        newKeys.shift();
-      }
+      for (let newCanonical = canonical(newKeys[0]);
+        (newKeys[0] && newCanonical <= sheetCanonical);
+        newCanonical = canonical(newKeys[0])) {
+          if (newCanonical === sheetCanonical)
+            console.log(`Overwriting sheet.${key}= '${sheet[key].v}' with mergeList.${key}= '${mergeList[key].v}' `);
+          else
+            console.log(`new mergeList.${newKeys[0]}= '${mergeList[newKeys[0]].v}' `);
+          merged[newKeys[0]] = mergeList[newKeys[0]];
+          newKeys.shift();
+        }
+      merged[key] = sheet[key];
     }
   newKeys.forEach (key=> {
     merged[key] = mergeList[key];
   })
+  console.log(Object.keys(merged).length, 'cells after merge\n');
   return merged
 }
 
@@ -195,8 +202,7 @@ const compoundHeader = (sheet, keys, separator) => {
 
 
 // Simply removes the columns and leaves an empty space.
-// This was avoid copying the entire dataset to a new sheet.
-// This function mutates sheet after calling pure function createKillAndMergeListFromTrim.
+// This was avoid copying the entire dataset to a new sheet (though copying still needed to not mutate input).
 // rows is an array of stringy numbers.
 // Both rows and columns are optional.
 // mergeRowHeaders operates with or without a merge function but,
@@ -211,13 +217,11 @@ const trimTheEasyWay = (sheet, trim, mergeRowHeaders, mergeFunction) => {
 }
 
 // Non-mutating part of trimTheEasyWay. Returns { killList, mergeList }  to be dealt with as appropriate.
-// killList is array, mergeList is object
+// killList is an array, mergeList is an object
 const createKillAndMergeListFromTrim = (sheet, trim, mergeRowHeaders, mergeFunction) => {
   const killList = [];
-  const mergeList = [];
+  const mergeList = {};
   // console.log(Object.keys(sheet));
-  let str =''
-  Object.keys(sheet).forEach (key=>{str+=key});
   Object.keys(sheet).forEach (key => {
     if (key != '!range' && key != '!ref' && key !='!merges') {
       // console.log(key);
@@ -297,7 +301,6 @@ const onsWithRowHierarchy = (sheet, trim) => {
     console.log('OK then');
   })
   console.log('and the data starts at cell ',dataStart);
-
 
   sheet = trimTheEasyWay (sheet, trim, true)
   return sheet

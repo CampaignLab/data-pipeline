@@ -1,3 +1,10 @@
+// 26 Aug :
+// TODO - D12, D13 and D347 are ending up blanked :(
+// TODO - end of document after last merge is getting cut off
+
+
+
+
 import fs from 'fs';
 import webCharts from 'webcharts';
 import XLSX from 'xlsx-style';
@@ -52,40 +59,42 @@ const xlsxRead = (accessType, fileIn = fileInDefault) => {
 
 
 //currently to suppress file output, set fileOut to null (leaving fileOut undefined will use default)
-const csvWrite = ( workbook, fileOut = fileOutDefault, ignores) => {
+const csvWrite = ( workbook, fileOut = fileOutDefault, ignores = {cols:[], rows:[]}) => {
   const delimiter=',';
   const newLine='\r\n';
-  ignores = ignores || {cols:[], rows:[]};
-  /* output format determined by filename  - or so they say*/
+  let fd;
+  let lineCount=0;
+
   if (fileOut){
     // module xlsx will have XLSX.stream, module xlsx-style will not
-    console.log(Object.keys (XLSX));
-    //
-    
-    console.log(`Got outFile: [${fileOut}]`);
-    console.log(ignores);
-    if (ignores) {
-      console.log(`Got ${ignores.rows.length} rows & ${ignores.cols.length} columns to ignore`);
-} //remove me
-      let max = maxes(workbook);
-    console.log(max);
+    // console.log(Object.keys (XLSX));
+
+    console.log(`Using output file: ${fileOut}`);
+    let max = maxes(workbook);
+
     let rowOfCols = Array.from (Array(colNumber(max.x)+1).keys())
     rowOfCols.shift();
     rowOfCols= rowOfCols
       .map (colLetters)
-      .filter (col => !ignores.cols.includes(col))
+      .filter (col => !ignores.cols.includes(col)) ;
 
-console.log(rowOfCols);
+    fd = fs.openSync (fileOut, 'w');
+    console.log(`Opened ${fileOut} for synchronous write.`);
+
 
     for (let row=1; (row <= max.y); row++) {
-      if (!ignores.rows.includes(row)) {
+      if (!ignores.rows.includes(''+row)) {
+        lineCount ++ ;
         let line= rowOfCols
           .map (col => col+row)
-          .map (key => key)
+          .map (key => workbook[key] ? ''+workbook[key].v : '')
+          .map (value => value.includes(',')? `"${value}"` : value)
           .join (delimiter) ;
-        console.log(line);
+        fs.writeSync (fd, line+newLine);
       }
     }
+    fs.closeSync (fd);
+    console.log(`Closed ${fileOut} after ${lineCount} records.`);
 
 
     // } //reinstate me
