@@ -117,7 +117,8 @@ const restOfRowEmpty = (sheet, startCell, stopAt) => {
         return true;
       const nextCell = cells[idx+1];
       // if next item matches row number, rest of row is not empty, if no match, it should be empty.
-      return !(startCell.match(splitterRegex)[2] === nextCell.match(splitterRegex)[2])
+      // if it startsWith('!'), it's the !range key - so we've finished the cells.
+      return nextCell.startsWith('!') || !(startCell.match(splitterRegex)[2] === nextCell.match(splitterRegex)[2])
     }
   }
     // allow stopAt to be an integer which will be added to startCell
@@ -127,7 +128,7 @@ const restOfRowEmpty = (sheet, startCell, stopAt) => {
   if (startCell.match(splitterRegex)[2] != stopAt.match(splitterRegex)[2])
     throw new Error (`Comparing ${startCell} and ${stopAt} but they are different rows.`)
 
-  // Traverse along until startCell== topAt or until non-empty cell found
+  // Traverse along until startCell== stopAt or until non-empty cell found
   while (startCell != stopAt) {
     if (sheet[startCell])
       return false;
@@ -145,21 +146,21 @@ const canonical = key => {
     : null
 }
 
-const orderLeftToRightTopToBottom = keys =>
+const orderTopToBottomLeftToRight = keys =>
   keys.sort ((a,b) => canonical(a) - canonical(b)) ;
 
 
 // WARNING: This is naughty JS!
 // per spec, you CANNOT rely on an object ordering its keys, as objects are unordered.
 // But I'm going to do it anyway and refactor 'one day'
-// You can also use orderLeftToRightTopToBottom to create an ordered array of keys
+// You can also use orderTopToBottomLeftToRight to create an ordered array of keys
 // and work from that. But that might take some time!
 const mergeInOrder = (sheet, mergeList) => {
   if (Object.keys(mergeList).length === 0)
     return sheet
   let sheetKeys = Object.keys (sheet);
   let newKeys = Object.keys (mergeList);
-  newKeys = orderLeftToRightTopToBottom (newKeys);
+  newKeys = orderTopToBottomLeftToRight (newKeys);
   const merged = {};
   console.log('existing cells:', sheetKeys.length);
   console.log('new cells:', newKeys.length);
@@ -257,20 +258,32 @@ const createKillAndMergeListFromTrim = (sheet, trim, mergeRowHeaders, mergeFunct
 
 // interpret a sheet of the form used by Office of National Statistics, where geographical row headers
 // occupy multiple columns hierarchically, eg A12: England, B13: North West, C14: Runcorn, C15: Warrington, B16: North East, C17: Gateshead, etc...
-const onsWithRowHierarchy = (sheet, trim) => {
+const interpretOnsWithRowHierarchy = (sheet) => {
   let current = 'A1';
   let dataStart = '';           // Best guess for top left data cell, see comment below
   let currentHeader = '';
-  let headersStart = [];        // Array of: the first cell in a row which contains a header
+  let max = maxes(sheet);
+  const headersStart = [];        // Array of: the first cell in a row which contains a header
+  var colHeaders = [];
+  var rowHeaders = [];
+  var rowHeadersCol ;
+  const toTrim = {rows: [], cols: []};
+  const meta = {sourcing: [], terms: []};
 
   // Traverse downwards until you find a row with something in more than just the first cell.
-  while (restOfRowEmpty(sheet, current))
+  while (restOfRowEmpty(sheet, current)) {
+    if (sheet[current])
+      meta.sourcing.push (current);
     current = incY (current);
-  // So long as this non-empty row is empty in this first cell,
+  }
+  // So long as this more-than-one-column row is empty in this first cell,
   while (!sheet[current]) {
     currentHeader = current;
+    // Assume that the last row of headers is appropriate to define which columns to trim
+    toTrim.cols = [];
     // traverse to the right to the first non-empty '','',cell
     while (!sheet[currentHeader]){
+      toTrim.cols.push(currentHeader)
       currentHeader = incX (currentHeader);
     }
     // and remember it.
@@ -278,27 +291,89 @@ const onsWithRowHierarchy = (sheet, trim) => {
     // this is a while, not an if, since there may be more than one header row
     // so repeat for the next row if also it's first cell is empty.
     current = incY (current);
+    rowHeaders = [toTrim.cols.pop()];
   }
 
   // assuming that the first header row we found contains some header in the first data column.
   dataStart = headersStart[0].match(splitterRegex)[1] + current.match(splitterRegex)[2];
 
-  console.log ('I reckons the headers are:');'','',
+  // console.log ('I reckons the column headers are:');'','',
   headersStart.forEach (header => {
+    let rowOfHeaders = [];
     while (!restOfRowEmpty(sheet, header, 50)) {
-      console.log(sheet[header].v);
+      // console.log(sheet[header].v);
       // console.log(header);
+      rowOfHeaders.push (header);
       header = incX (header);
       while (!sheet[header] && !restOfRowEmpty(sheet, header, 50))
         header = incX (header);
     }
+    colHeaders.push(rowOfHeaders);
     console.log('OK then');
   })
   console.log('and the data starts at cell ',dataStart);
 
-  sheet = trimTheEasyWay (sheet, trim, true)
+  currentHeader = rowHeaders[0]
+  // current should never have moved right from column A.
+  // current = 'A' + current.match(splitterRegex)[2];
+  // loop until we reach the bottom
+  while (0+current.match(splitterRegex)[2] <= 0+(max.y)) {
+    // while we're in a completely empty row but haven't reached the bottom, move down
+    while (!sheet[current] && restOfRowEmpty(sheet, current) && 0+current.match(splitterRegex)[2] < 0+(maxes.y)) {
+      current = incY (current);
+      currentHeader = incY (currentHeader);
+    }
+    while (!restOfRowEmpty(sheet, current)) {
+      meta.terms = [];
+      current = incY (current);
+      currentHeader = incY (currentHeader);
+      rowHeaders.push (currentHeader);
+    }
+    if (sheet[current])
+      meta.terms.push (current);
+    current = incY (current);
+    currentHeader = incY (currentHeader);
+  }
+  toTrim.rows = toTrim.rows.concat(meta.sourcing, meta.terms);
+  toTrim.rows = toTrim.rows.map (cellName => cellName.match(splitterRegex)[2]);
+  toTrim.cols = toTrim.cols.map (cellName => cellName.match(splitterRegex)[1]);
+  meta.sourcing = meta.sourcing.map (cellName => sheet[cellName].v);
+  meta.terms = meta.terms.map (cellName => sheet[cellName].v);
+
+
+  rowHeaders = rowHeaders.filter (cellName => sheet[cellName] && sheet[cellName].v != '');
+
+  return {
+    trim: toTrim,
+    meta,
+    colHeaders,
+    rowHeaders,
+    mergeColumn : currentHeader.match(splitterRegex)[1]
+  };
+};
+
+
+const interpretAndTrim = (sheet, trim) => {
+  let suggested = interpretOnsWithRowHierarchy (sheet);
+  let rows = suggested.rowHeaders
+    .slice(0,3)
+    .concat(null,suggested.rowHeaders.slice(-1))
+    .map (cellName => cellName !== null? sheet[cellName].v : '...')
+    .join (';  ');
+  let cols = suggested.colHeaders.map (rowOfColHeaders =>
+    rowOfColHeaders
+    .slice(0,2)
+    .concat(null,rowOfColHeaders.slice(-1)))
+    .reduce((acc, val) => [...acc, ...val])
+    .map (cellName => cellName !== null? `"${sheet[cellName].v}"` : '...')
+    .join ('; ');
+  console.log(`Will trim and merge based on the assumption that the main column of row headers is: ${rows}`);
+  console.log(`and the rows of column headers are: ${cols}`);
+  console.log(`So that rows ${suggested.trim.rows} and columns ${suggested.trim.cols}
+    are to be trimmed, with columns merged into column ${suggested.mergeColumn}.`);
+  sheet = trimTheEasyWay (sheet, trim, true);
   return sheet
 
 };
 
-export default { onsWithRowHierarchy, colNumber, colLetters, maxes}
+export default { interpretOnsWithRowHierarchy, interpretAndTrim, colNumber, colLetters, maxes}
