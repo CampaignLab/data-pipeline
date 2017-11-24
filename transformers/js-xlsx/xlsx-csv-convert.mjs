@@ -52,7 +52,7 @@ const xlsxRead = (accessType, fileIn = fileInDefault) => {
 
 
 //currently to suppress file output, set fileOut to null (leaving fileOut undefined will use default)
-const csvWrite = ( workbook, fileOut = fileOutDefault, ignores = {cols:[], rows:[]}) => {
+const csvWrite = ( workbook, fileOut = fileOutDefault, ignores = {cols:[], rows:[]}, includeBlankLines = false) => {
   const delimiter=',';
   const newLine='\r\n';
   let fd;
@@ -80,10 +80,13 @@ const csvWrite = ( workbook, fileOut = fileOutDefault, ignores = {cols:[], rows:
         lineCount ++ ;
         let line= rowOfCols
           .map (col => col+row)
-          .map (key => workbook[key] ? ''+workbook[key].v : '')
-          .map (value => value.includes(',')? `"${value}"` : value)
-          .join (delimiter) ;
-        fs.writeSync (fd, line+newLine);
+          .map (key => workbook[key] ? ''+workbook[key].v : '');
+        if (includeBlankLines || line.some (value => value != '')) {
+          line = line
+            .map (value => value.includes(',')? `"${value}"` : value)
+            .join (delimiter) ;
+          fs.writeSync (fd, line+newLine);
+        }
       }
     }
     fs.closeSync (fd);

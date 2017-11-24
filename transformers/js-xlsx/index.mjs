@@ -14,9 +14,9 @@ const fileIn ='../../../test.xls'
     var workbook = xlsxRead ('local',fileIn);
     var { opts, Directory, SheetNames, Sheets } = workbook;
     console.log({ opts, Directory, SheetNames });
-    var sheet = interpretAndTrim (Sheets['CT0790']);
+    var {sheet, trim} = interpretAndTrim (Sheets['CT0790']);
 
-    csvWrite (sheet, undefined, trims['CT0790']);
+    csvWrite (sheet, undefined, trim);
 
     // workbook.keys= {
     // opts:
