@@ -4,7 +4,7 @@ import sheetParsers from './xlsx-sheet-parsers';
 import trims from './dataset-specific-trims';
 
 const { xlsxRead, csvWrite } = fileOperations;
-const { interpretOnsWithRowHierarchy,  interpretAndTrim, maxes } = sheetParsers;
+const { onsWithRowHierarchy,  interpretAndTrim, maxes } = sheetParsers;
 
 const fileIn ='../../../test.xls'
   , fileOut ='result.csv';
@@ -14,7 +14,7 @@ const fileIn ='../../../test.xls'
     var workbook = xlsxRead ('local',fileIn);
     var { opts, Directory, SheetNames, Sheets } = workbook;
     console.log({ opts, Directory, SheetNames });
-    var sheet = interpretAndTrim (Sheets['CT0790'], trims['CT0790']);
+    var sheet = interpretAndTrim (Sheets['CT0790']);
 
     csvWrite (sheet, undefined, trims['CT0790']);
 
