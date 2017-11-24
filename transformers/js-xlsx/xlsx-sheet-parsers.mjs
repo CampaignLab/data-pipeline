@@ -155,14 +155,14 @@ const orderTopToBottomLeftToRight = keys =>
 // But I'm going to do it anyway and refactor 'one day'
 // You can also use orderTopToBottomLeftToRight to create an ordered array of keys
 // and work from that. But that might take some time!
-const mergeInOrder = (sheet, mergeList) => {
+const mergeInOrder = (sheet, mergeList, logMerges) => {
   if (Object.keys(mergeList).length === 0)
     return sheet
   let sheetKeys = Object.keys (sheet);
   let newKeys = Object.keys (mergeList);
   newKeys = orderTopToBottomLeftToRight (newKeys);
   const merged = {};
-  console.log('existing cells:', sheetKeys.length);
+  console.log('\nexisting cells:', sheetKeys.length);
   console.log('new cells:', newKeys.length);
   for (const key in sheet)
     if (!newKeys.length)
@@ -172,10 +172,11 @@ const mergeInOrder = (sheet, mergeList) => {
       for (let newCanonical = canonical(newKeys[0]);
         (newKeys[0] && newCanonical <= sheetCanonical);
         newCanonical = canonical(newKeys[0])) {
-          if (newCanonical === sheetCanonical)
-            console.log(`Overwriting sheet.${key}= '${sheet[key].v}' with mergeList.${key}= '${mergeList[key].v}' `);
-          else
-            console.log(`new mergeList.${newKeys[0]}= '${mergeList[newKeys[0]].v}' `);
+          if (logMerges)
+            if (newCanonical === sheetCanonical)
+              console.log(`Overwriting sheet.${key}= '${sheet[key].v}' with mergeList.${key}= '${mergeList[key].v}' `);
+            else
+              console.log(`new mergeList.${newKeys[0]}= '${mergeList[newKeys[0]].v}' `);
           merged[newKeys[0]] = mergeList[newKeys[0]];
           newKeys.shift();
         }
@@ -309,9 +310,8 @@ const interpretOnsWithRowHierarchy = (sheet) => {
         header = incX (header);
     }
     colHeaders.push(rowOfHeaders);
-    console.log('OK then');
   })
-  console.log('and the data starts at cell ',dataStart);
+  console.log('Data seems to start at cell ',dataStart);
 
   currentHeader = rowHeaders[0]
   // current should never have moved right from column A.
@@ -367,11 +367,12 @@ const interpretAndTrim = (sheet, trim) => {
     .reduce((acc, val) => [...acc, ...val])
     .map (cellName => cellName !== null? `"${sheet[cellName].v}"` : '...')
     .join ('; ');
-  console.log(`Will trim and merge based on the assumption that the main column of row headers is: ${rows}`);
-  console.log(`and the rows of column headers are: ${cols}`);
-  console.log(`So that rows ${suggested.trim.rows} and columns ${suggested.trim.cols}
-    are to be trimmed, with columns merged into column ${suggested.mergeColumn}.`);
-  sheet = trimTheEasyWay (sheet, trim, true);
+  console.log (`Found metadata : ${suggested.meta}.`);
+  console.log(`Will trim and merge based on the assumption that the main column of row headers is:\n ${rows}`);
+  console.log(`and the rows of column headers are:\n ${cols}`);
+  console.log(`So that rows ${suggested.trim.rows} and columns ${suggested.trim.cols} are to be trimmed, with columns merged into column ${suggested.mergeColumn}.`);
+  console.log();
+  sheet = trimTheEasyWay (sheet, trim || suggested.trim, true);
   return sheet
 
 };
