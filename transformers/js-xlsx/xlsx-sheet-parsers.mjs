@@ -155,7 +155,8 @@ const orderTopToBottomLeftToRight = keys =>
 // But I'm going to do it anyway and refactor 'one day'
 // You can also use orderTopToBottomLeftToRight to create an ordered array of keys
 // and work from that. But that might take some time!
-const mergeInOrder = (sheet, mergeList, logMerges) => {
+const mergeInOrder = (sheet, mergeList, logMerges=true) => {
+console.log(Object.keys(mergeList).map(el=>el+': '+mergeList[el].v));
   if (Object.keys(mergeList).length === 0)
     return sheet
   let sheetKeys = Object.keys (sheet);
@@ -180,7 +181,8 @@ const mergeInOrder = (sheet, mergeList, logMerges) => {
           merged[newKeys[0]] = mergeList[newKeys[0]];
           newKeys.shift();
         }
-      merged[key] = sheet[key];
+      if (!merged[key])
+        merged[key] = sheet[key];
     }
   newKeys.forEach (key=> {
     merged[key] = mergeList[key];
@@ -370,8 +372,9 @@ const interpretAndTrim = (sheet, trim) => {
   console.log (`Found metadata : ${suggested.meta}.`);
   console.log(`Will trim and merge based on the assumption that the main column of row headers is:\n ${rows}`);
   console.log(`and the rows of column headers are:\n ${cols}`);
-  console.log(`So that rows ${suggested.trim.rows} and columns ${suggested.trim.cols} are to be trimmed, with columns merged into column ${suggested.mergeColumn}.`);
+  console.log(`So that rows ${suggested.trim.rows} are to be trimmed, with columns ${suggested.trim.cols} trimmed and merged into column ${suggested.mergeColumn}.`);
   console.log();
+  console.log(trim, suggested.trim );
   sheet = trimTheEasyWay (sheet, trim || suggested.trim, true);
   return sheet
 
