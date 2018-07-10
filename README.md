@@ -6,6 +6,15 @@
 * In order to do this, we first should define what the structure (schema) of the different data sources are.
 * This will help us down the line to create modules that transform our raw data into our target data, for later export into a database, R package, or any other tools for utilising the data in a highly structured and annotated format.
 
+### How can I contribute?
+
+* We need to go through each of the datasources that we have defined in "Campaign Lab Data Inventory", create a *transformer* (in the transformers folder), and associated schema for each datasource.
+* The transformer should be able to be run in a machine locally, downloading the data and transforming it into a CSV (later importing it into a local database).
+* To contribute:
+
+* 1. Open an Issue with the name of the issue formatted as *description-rowIdentifier*, where description and rowIdentifier are what is in the excel spreadsheet "Campaign Lab Data Inventory".
+* 2. Write a small description of which dataset you are trying to transform and create a schema for.
+* 3. Open a Pull Request (create a branch with an appropriate name) when you're finished
 
 ### What is a schema?
 
