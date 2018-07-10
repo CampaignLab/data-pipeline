@@ -1,0 +1,51 @@
+{
+    "title": "London LE2018 ward-by-ward results",  
+    "description": "2018 London local election results from Britain Elects. Rows represent party/wards.",
+    "source": "https://docs.google.com/spreadsheets/d/14GKPoj-E1CN0ZmiUd5gQWUi5zvGWbDoNoGT82RqKEno/edit?ts=5b07edf9#gid=0",
+    "properties": {
+	"ward": {
+	    "type": ["string"],
+	    "description": "Ward name"
+	},
+	"party": {
+	    "type": ["string"],
+	    "description": "Con, Lab, LDem, UKIP, Grn, Ind, Oth"
+	},
+	"authority": {
+	    "type": ["string"],
+	    "description": "Local authority name"
+	},
+	"constituency": {
+	    "type": ["string"],
+	    "description": "Local authority name"
+	},
+	"contested_seats": {
+	    "type": ["integer"],
+	    "description": "Number of contested seats in the ward"
+	},
+	"seats": {
+	    "type": ["integer"],
+	    "description": "Number of seats the party won in the latest election"
+	},
+	"seats_previous": {
+	    "type": ["integer"],
+	    "description": "Party's seats in a previous election - could be local or mayoral"
+	},
+	"votes": {
+	    "type": ["integer"],
+	    "description": "Number of votes the party got in the latest election"
+	},
+	"votes_previous": {
+	    "type": ["integer"],
+	    "description": "Party's votes in a previous election"
+	},
+	"vote_share": {
+	    "type": ["real number"],
+	    "description": "Party's vote share in the latest election"
+	} ,
+	"vote_share_previous": {
+	    "type": ["real number"],
+	    "description": "Party's vote share in a previous election"
+	}
+    }
+}
