@@ -1,0 +1,18 @@
+{
+  "title": "Election results",
+  "description": "A dataset of election results",
+  "properties": {
+    "county": {
+      "type": ["string"],
+      "description": "The county in which the result was"
+    },
+    "number_of_votes": {
+      "type": ["integer"],
+      "description": "The number of votes that were received"
+    },
+    "party": {
+      "type": ["string"],
+      "description": "the party which was receiving votes"
+    }
+  }
+}
