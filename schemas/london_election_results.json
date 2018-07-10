@@ -15,10 +15,6 @@
 	    "type": ["string"],
 	    "description": "Local authority name"
 	},
-	"constituency": {
-	    "type": ["string"],
-	    "description": "Local authority name"
-	},
 	"contested_seats": {
 	    "type": ["integer"],
 	    "description": "Number of contested seats in the ward"
@@ -39,13 +35,18 @@
 	    "type": ["integer"],
 	    "description": "Party's votes in a previous election"
 	},
-	"vote_share": {
+	"percent": {
 	    "type": ["real number"],
 	    "description": "Party's vote share in the latest election"
 	} ,
-	"vote_share_previous": {
+	"percent_previous": {
 	    "type": ["real number"],
 	    "description": "Party's vote share in a previous election"
+	},
+	"percent_pm": {
+	    "type": ["real number"],
+	    "description": "Change in party's vote share"
 	}
+
     }
 }
