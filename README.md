@@ -15,6 +15,7 @@
 
 ```{
   "title": "Election results",
+  "source": "https://data.police.uk/docs/method/forces/"
   "description": "A dataset of election results",
   "properties": {
     "county": {
@@ -34,5 +35,6 @@
 ```
 
 * The *title* tells you the name of the dataset (you can make this up)
+* *source* is a link (if available) to the actual dataset.
 * The *description* is a one liner that describes the dataset
 * *properties* is a list of the *datapoints* that we want to *end up with after transforming the raw dataset*.
