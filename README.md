@@ -16,6 +16,14 @@
 * 2. Write a small description of which dataset you are trying to transform and create a schema for.
 * 3. Open a Pull Request (create a branch with an appropriate name) when you're finished
 
+### Formatting
+
+* We need to make sure we format similar fields between datasources in the same way.
+
+* For now, the standardization should follow:
+
+* Timestamp fields: 2015-06-30T22:30:00.000Z
+
 ### What is a schema?
 
 * A schema in this case is basically just a JSON (JavaScript Object Notation) that *describes* the *structure* and *format* of the dataset.
