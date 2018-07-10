@@ -1,5 +1,6 @@
 {
   "title": "Election results",
+  "source": "https://data.police.uk/docs/method/forces/",
   "description": "A dataset of election results",
   "properties": {
     "county": {
