@@ -16,14 +16,12 @@ NAME_MAP = {
 }
 
 
-def get_wards():
-    wards = pd.read_csv(SPREADSHEET_URL, skiprows=2, header=0, na_values=['#VALUE!', '#DIV/0!'])
-
-    # drop some blank columns
+def get_data():
+    """Returns a dataframe matching schemas/london_election_results.json"""
+    wards = pd.read_csv(SPREADSHEET_URL, skiprows=2, header=0,
+                        na_values=['#VALUE!', '#DIV/0!'])
     to_drop = [col for col in wards.columns if 'Unnamed' in col] + ["Constituency"]
     wards = wards.drop(to_drop, axis=1)
-    wards.iloc[0]
-
     wards = wards.set_index(NON_PARTY_COLUMNS)
     party_column_tuples = [(c, n) for c in PARTY_COLUMNS for n in PARTY_NAMES]
     wards.columns = pd.MultiIndex.from_tuples(party_column_tuples)
