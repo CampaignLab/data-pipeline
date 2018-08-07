@@ -1,4 +1,5 @@
 import doStuff from './xlsx-csv-convert';
+import excelCSV from 'excelcsv';
 
 var workbook = doStuff ('../test.xls', 'local');
 var { opts, Directory, SheetNames, Sheets } = workbook;
