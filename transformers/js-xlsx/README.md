@@ -1,57 +1,62 @@
-## Campaign Lab Data Pipeline
+## js-xlsx
 
-#### What?
+#### A specific transformer built on general code.
 
-* We want to be able to structure our dataset (see "Campaign Lab Data Inventory").
-* In order to do this, we first should define what the structure (schema) of the different data sources are.
-* This will help us down the line to create modules that transform our raw data into our target data, for later export into a database, R package, or any other tools for utilising the data in a highly structured and annotated format.
+Uses `xlsx-style`, a fork of SheetJS, to read in .xlsx /.xls
 
-### How can I contribute?
+Chooses sheet from multi-sheet file.
 
-* We need to go through each of the datasources that we have defined in "Campaign Lab Data Inventory", create a *transformer* (in the transformers folder), and associated schema for each datasource.
-* The transformer should be able to be run in a machine locally, downloading the data and transforming it into a CSV (later importing it into a local database).
-* To contribute:
+Data stored in memory as a workbook object, indexed by cell name (eg 'AB37')
 
-* 1. Open an Issue with the name of the issue formatted as *description-rowIdentifier*, where description and rowIdentifier are what is in the excel spreadsheet "Campaign Lab Data Inventory".
-* 2. Write a small description of which dataset you are trying to transform and create a schema for.
-* 3. Open a Pull Request (create a branch with an appropriate name) when you're finished
+Outputs .csv, where rows or columns can be surpressed before output by defining trim objects (an object with a `rows` and a `columns` property)
 
-### Formatting
+Hierarchical geographic headers over multiple columns are merged automatically up to depth 3.
 
-* We need to make sure we format similar fields between datasources in the same way.
+Bespoke merge function can be added to merge other similar formats.
 
-* For now, the standardization should follow:
+Currently uses hardcoded input and output filenames.
 
-* Timestamp fields: 2015-06-30T22:30:00.000Z
+Contains logic to separate out in-sheet metadata and guess where headers end and data begins, both row-wise and column-wise, but this is not implemented to be automatic.
 
-### What is a schema?
+Contains a bunch of helper functions.
 
-* A schema in this case is basically just a JSON (JavaScript Object Notation) that *describes* the *structure* and *format* of the dataset.
+#### helpers:
+##### GSS codes:
+`whatIs(GSScode)` returns the geographical classification of a given GSS code
 
-* an example schema would be
+`isGssCode(GSScode)` true if `GSScode` is the correct shape and begins with a correct  geographical classification
 
-```{
-  "title": "Election results",
-  "source": "https://data.police.uk/docs/method/forces/"
-  "description": "A dataset of election results",
-  "properties": {
-    "county": {
-      "type": ["string"],
-      "description": "The county in which the result was"
-    },
-    "number_of_votes": {
-      "type": ["integer"],
-      "description": "The number of votes that were received"
-    },
-    "party": {
-      "type": ["string"],
-      "description": "the party which was receiving votes"
-    }
-  }
-}
-```
+`startsWithGssCode(GSScode)` true if `GSScode` begins with a correct  geographical classification
 
-* The *title* tells you the name of the dataset (you can make this up)
-* *source* is a link (if available) to the actual dataset.
-* The *description* is a one liner that describes the dataset
-* *properties* is a list of the *datapoints* that we want to *end up with after transforming the raw dataset*.
+### input / output:
+`xlsxRead (accessType, fileIn )` reads in an .xlsx file. WIP - will be upgracded to include JSON via file & Ajax
+
+`csvWrite (workbook, fileOut, ignores)` writes workbook memory object to fileOut in CSV. Delimters / line endings are hardcoded as `,` and `\r\n`. Synchronous file write. Receives optional `ignores`, a trim object of rows and columns to supress
+
+### simple helpers:
+`canonical (cellNAmeString)` returns a number to sort cell names by, ordered by row then column.
+
+`incX` / `incY (cell, amount)` increments cell by amount rows / columns (or 1 row/ column if amoount not specified)
+
+`maxes (workbook)` manually parses all cells in workbook to find greatest row and column. These can also be found by accesing `workbook[!ref]`
+
+`colNumber(cellNameString)` / `colLetters(ordinal)` convert between callNameString and ordinal
+
+`[success, col, row] = cell.match(splitterRegex) || [null];` splits cell name into column letters and row number (string), or places `null` into `success` if it fails.
+
+### workbook / sheet helpers
+
+`restOfRowEmpty (sheet, startCell, stopAt) ` checks if the next cell in memory after `startCell` refers to a different row. Caveat: failing to provide `stopAt` relies on workbook object being ordered, which technically cannot be relied upon. On the other hand, providing cell `stopAt` means that function looks no further than that cell. `stopAt` may be a cell name, or a number of cells to the right.
+
+`orderTopToBottomLeftToRight (keyArray)` sorts an array of cell names, most importantly top to bottom then left to right.
+
+
+`mergeInOrder (sheet, mergeList)` sorts `mergeList` and intersperses into clone of `sheet`. Relies upon orderable objects.
+
+`createKillAndMergeListFromTrim (sheet, trim, mergeRowHeaders, mergeFunction)` does what it says on the tin. Merging is optional, depending upon optional `mergeRowHeaders` flag. `mergeFunction` is also optional. Default is to merge rows A&B into C, which is done without mutation. Currently `mergeFunction` must be a function which takes a `workbook` and mutates it.
+
+`trimTheEasyWay` takes same parameters as `createKillAndMergeListFromTrim`, calls it but then applies the resulting merge and kill lists. Kill list mutates `sheet`, merge list does not.  Will probably be renamed.
+
+`onsWithRowHierarchy` returns `trimTheEasyWay`  with `mergeRowHeaders` flag set, but contains logic which outputs guesses of where headers finish and data begins. WIP. Will probably be renamed.
+
+
