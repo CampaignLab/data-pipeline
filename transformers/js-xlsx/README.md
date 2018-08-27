@@ -20,7 +20,7 @@ Contains logic to separate out in-sheet metadata and guess where headers end and
 
 Contains a bunch of helper functions.
 
-#### helpers:
+### helpers:
 ##### GSS codes:
 `whatIs(GSScode)` returns the geographical classification of a given GSS code
 
@@ -28,12 +28,12 @@ Contains a bunch of helper functions.
 
 `startsWithGssCode(GSScode)` true if `GSScode` begins with a correct  geographical classification
 
-### input / output:
+##### input / output:
 `xlsxRead (accessType, fileIn )` reads in an .xlsx file. WIP - will be upgracded to include JSON via file & Ajax
 
 `csvWrite (workbook, fileOut, ignores)` writes workbook memory object to fileOut in CSV. Delimters / line endings are hardcoded as `,` and `\r\n`. Synchronous file write. Receives optional `ignores`, a trim object of rows and columns to supress
 
-### simple helpers:
+##### simple helpers:
 `canonical (cellNAmeString)` returns a number to sort cell names by, ordered by row then column.
 
 `incX` / `incY (cell, amount)` increments cell by amount rows / columns (or 1 row/ column if amoount not specified)
@@ -44,7 +44,7 @@ Contains a bunch of helper functions.
 
 `[success, col, row] = cell.match(splitterRegex) || [null];` splits cell name into column letters and row number (string), or places `null` into `success` if it fails.
 
-### workbook / sheet helpers
+##### workbook / sheet helpers
 
 `restOfRowEmpty (sheet, startCell, stopAt) ` checks if the next cell in memory after `startCell` refers to a different row. Caveat: failing to provide `stopAt` relies on workbook object being ordered, which technically cannot be relied upon. On the other hand, providing cell `stopAt` means that function looks no further than that cell. `stopAt` may be a cell name, or a number of cells to the right.
 
