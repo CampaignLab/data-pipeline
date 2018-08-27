@@ -8,7 +8,7 @@ Chooses sheet from multi-sheet file.
 
 Data stored in memory as a workbook object, indexed by cell name (eg 'AB37')
 
-Outputs .csv, where rows or columns can be surpressed before output by defining trim objects (an object with a `rows` and a `columns` property)
+Outputs .csv, where rows or columns can be supressed before output by defining trim objects (an object with a `rows` and a `columns` property)
 
 Hierarchical geographic headers over multiple columns are merged automatically up to depth 3.
 
