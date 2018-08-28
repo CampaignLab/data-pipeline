@@ -31,7 +31,7 @@ Contains a bunch of helper functions.
 ##### input / output:
 `xlsxRead (accessType, fileIn )` reads in an .xlsx file. WIP - will be upgracded to include JSON via file & Ajax
 
-`csvWrite (workbook, fileOut, ignores)` writes workbook memory object to fileOut in CSV. Delimters / line endings are hardcoded as `,` and `\r\n`. Synchronous file write. Receives optional `ignores`, a trim object of rows and columns to supress
+`csvWrite (workbook, fileOut, ignores)` writes workbook memory object to fileOut in CSV. Delimters / line endings are hardcoded as `,` and `\r\n`. Synchronous file write. Receives optional `ignores`, a trim object of rows and columns to supress. Trim object may or may not include blank lines (auto-genereated ones do not), but blank liones are supressed by default unless includeBlankLines is set.
 
 ##### simple helpers:
 `canonical (cellNAmeString)` returns a number to sort cell names by, ordered by row then column.
@@ -57,6 +57,12 @@ Contains a bunch of helper functions.
 
 `trimTheEasyWay` takes same parameters as `createKillAndMergeListFromTrim`, calls it but then applies the resulting merge and kill lists. Kill list mutates `sheet`, merge list does not.  Will probably be renamed.
 
-`onsWithRowHierarchy` returns `trimTheEasyWay`  with `mergeRowHeaders` flag set, but contains logic which outputs guesses of where headers finish and data begins. WIP. Will probably be renamed.
+`interpretOnsWithRowHierarchy` returns an object of `trim`, `meta`, `colHeaders`, `rowHeaders`, `mergeColumn` where:
+    trim: a trim object, `{rows, cols}` with the suggested rows and columns to trim/ merge.
+    meta, an object, `{sourcing, terms}` where `sourcing` and `terms` are each arrays of the contents of cells in column A, `sourcing` being those from the rows to be stripped above the data and `terms` from those below.
+    colHeaders, an array *of arrays* being each row of column headers
+    rowHeaders, an array only meant to identify th4e column into which other header columns will be merged. It is for identification by the user, not for processing, since it may include blank or incorrect elements.
+    mergeColumn : the column letter of the column header columns are to be merged into.
+  };
 
-
+`interpretAndTrim` calls `interpretOnsWithRowHierarchy` to get suggested trim and attempts to output this intelligently for user checking. Currently does not await user confirmation, but should do in future. Then performs the trim with `trimTheEasyWay` and returns and object `{sheet, trim}` where sheet is the sheet after blanking and merging the items in `trim` and `trim` is the trim object generated *unless* overridden by passing `interpretAndTrim`  a trim object. In that case, a trim object is still generated and output, but *is then discarded and overriden* by the passed trim object.

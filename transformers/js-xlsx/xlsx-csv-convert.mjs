@@ -93,10 +93,6 @@ const csvWrite = ( workbook, fileOut = fileOutDefault, ignores = {cols:[], rows:
     console.log(`Closed ${fileOut} after ${lineCount} records.`);
 
 
-    // } //reinstate me
-
-
-
 
     // // more bullshit errors - doesn;t seem to behave to spec.
     // var csvOutput = XLSX.utils.sheet_to_csv (workbook);
