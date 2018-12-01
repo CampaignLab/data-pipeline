@@ -1,0 +1,34 @@
+{
+  "name": "data-pipeline__js-xlsx__branch",
+  "version": "1.0.0",
+  "description": "convert xlsx to csv using js-xlsx",
+  "main": "index.js",
+  "dependencies": {
+    "excelcsv": "^0.1.2",
+    "stream-meter": "^1.0.4",
+    "webcharts": "^1.10.0",
+    "xlsx": "^0.13.3",
+    "xlsx-style": "^0.8.13"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node  --experimental-modules ./index.mjs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CampaignLab/data-pipeline.git"
+  },
+  "keywords": [
+    "JS",
+    "XLS",
+    "XLSX",
+    "charts"
+  ],
+  "author": "mork",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CampaignLab/data-pipeline/issues"
+  },
+  "homepage": "https://github.com/CampaignLab/data-pipeline#readme"
+}
