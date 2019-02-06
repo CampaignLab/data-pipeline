@@ -2,7 +2,7 @@
 
 #### What?
 
-* We want to be able to structure our dataset (see "Campaign Lab Data Inventory").
+* We want to be able to structure our dataset - see [Campaign Lab Data Inventory](https://docs.google.com/spreadsheets/d/1s5zWhdXi0-YBUMkK2Le3cfENBsfc29vOnFhnfn8N6dU).
 * In order to do this, we first should define what the structure (schema) of the different data sources are.
 * This will help us down the line to create modules that transform our raw data into our target data, for later export into a database, R package, or any other tools for utilising the data in a highly structured and annotated format.
 
@@ -55,3 +55,13 @@
 * *source* is a link (if available) to the actual dataset.
 * The *description* is a one liner that describes the dataset
 * *properties* is a list of the *datapoints* that we want to *end up with after transforming the raw dataset*.
+
+
+### Dockerized
+I'm learning my way around data science and Python. So am working with Docker to improve reproducability and other good reasons.
+For now, have mounted the entire repo into the image's workspace.
+
+* docker-compose up
+* Get a login URL  (localhost:8888?token=...) from the output
+* docker exec -it jupyter-notebook /bin/bash
+* python -c 'from london_election_results import get_data; print(get_data())'
