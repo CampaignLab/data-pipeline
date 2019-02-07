@@ -1,32 +1,33 @@
 version: '3.1'
 services:
-  notebook:
-    image: jupyter/datascience-notebook
-    container_name: jupyter-notebook
+  datascience:
+    image: civisanalytics/datascience-python:4.2.0
+    container_name: datascience-python
     ports:
       - "8888:8888"
     volumes:
-      - ./:/home/jovyan/work
-  dejavu:
-    image: appbaseio/dejavu
-    container_name: dejavu
-    ports:
-      - "1358:1358"
-    volumes:
-      - ./:/home/jovyan/work
+      - ./:/pipeline
+    working_dir: "/pipeline/transformers"
+    tty: true
+    # Keep container running idle.
+    command: [ "/bin/sh", "-c", "pip install elasticsearch-loader; tail -f /dev/null"]
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.5.2
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.6.0
     container_name: elasticsearch
     ports:
       - "9200:9200"
-    #volumes:
-    #  - ./env/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
     environment:
-      discovery.type: "single-node"
+      CLUSTER_NAME: "campaignlab"
+      HTTP_PORT: "9200"
+      DISCOVERY_TYPE: "single-node"
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
-      http.port: "9200"
-      http.cors.enabled: "true"
-      http.cors.allow-origin: "http://localhost:1358,http://127.0.0.1:1358"
-      http.cors.allow-headers: "X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization"
-      http.cors.allow-methods: "OPTIONS, HEAD, GET, PUT, POST, DELETE"
-      http.cors.allow-credentials: "true"
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana-oss:6.6.0
+    container_name: kibana
+    ports:
+      - "5601:5601"
+      - "8080:8080"
+    environment:
+      SERVER_NAME: "kibana"
+      ELASTICSEARCH_HOSTS: "http://elasticsearch:9200"

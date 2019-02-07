@@ -1,8 +1,10 @@
 ## Campaign Lab Data Pipeline
 
+For context, see [Campaign Lab Guide](https://github.com/CampaignLab/Campaign-Lab-Guide/blob/master/Campaign%20Lab%20Guide.md0).
+
 #### What?
 
-* We want to be able to structure our dataset - see [Campaign Lab Data Inventory](https://docs.google.com/spreadsheets/d/1s5zWhdXi0-YBUMkK2Le3cfENBsfc29vOnFhnfn8N6dU).
+* We want to be able to structure our dataset from the Data Inventory.
 * In order to do this, we first should define what the structure (schema) of the different data sources are.
 * This will help us down the line to create modules that transform our raw data into our target data, for later export into a database, R package, or any other tools for utilising the data in a highly structured and annotated format.
 
@@ -57,11 +59,20 @@
 * *properties* is a list of the *datapoints* that we want to *end up with after transforming the raw dataset*.
 
 
-### Dockerized
-I'm learning my way around data science and Python. So am working with Docker to improve reproducability and other good reasons.
-For now, have mounted the entire repo into the image's workspace.
+### Toolset
+(Author is learning his way around data science and Python, better approaches welcome.)
+Datasets are expected to be largely static; transformers are intended to be manually run and eyeballed as needed, instead of automated.
+They can be run in a local environment.
+For reproducability and dev tooling, can also use a container environment via Docker.
 
-* docker-compose up
-* Get a login URL  (localhost:8888?token=...) from the output
-* docker exec -it jupyter-notebook /bin/bash
-* python -c 'from london_election_results import get_data; print(get_data())'
+Run a specific command:
+`docker-compose run datascience python -c 'from london_election_results import get_data; print(get_data())'`
+
+Running the environment:
+
+* `docker-compose up`
+* `http://localhost:9200` #elasticsearch
+* `http://localhost:5601` #kibana
+* Can import a CSV with e.g.
+* `docker-compose run datascience python -c 'elasticsearch_loader --es-host http://elasticsearch:9200 --index campaignlab --type campaignlab csv ../schemas/local_election_results_2018-05-03.csv`
+* Follow https://www.elastic.co/guide/en/kibana/current/tutorial-build-dashboard.html to visualise.
