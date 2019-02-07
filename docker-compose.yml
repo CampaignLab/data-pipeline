@@ -7,3 +7,26 @@ services:
       - "8888:8888"
     volumes:
       - ./:/home/jovyan/work
+  dejavu:
+    image: appbaseio/dejavu
+    container_name: dejavu
+    ports:
+      - "1358:1358"
+    volumes:
+      - ./:/home/jovyan/work
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.5.2
+    container_name: elasticsearch
+    ports:
+      - "9200:9200"
+    #volumes:
+    #  - ./env/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    environment:
+      discovery.type: "single-node"
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      http.port: "9200"
+      http.cors.enabled: "true"
+      http.cors.allow-origin: "http://localhost:1358,http://127.0.0.1:1358"
+      http.cors.allow-headers: "X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization"
+      http.cors.allow-methods: "OPTIONS, HEAD, GET, PUT, POST, DELETE"
+      http.cors.allow-credentials: "true"
