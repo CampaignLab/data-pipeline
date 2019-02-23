@@ -7,6 +7,18 @@ import pandas as pd
 import argparse
 import by_ward_lookup as maker
 
+# Download .csv from here using nomis. It's not uploaded to github.
+SPREADSHEET_URL = ("https://www.nomisweb.co.uk/census/2011/ks501ew")
+SCHEMA_URL = ("https://www.nomisweb.co.uk/census/2011/ks501uk.pdf")
+
+
+# Copied across. COnsider filling in NAME_MAP a Todo...
+NAME_MAP = {
+    "Authority": "authority",
+    "Ward": "ward",
+    "No. up for election:": "contested_seats"
+}
+
 
 def main():
     parser = argparse.ArgumentParser(description='Output a row')
