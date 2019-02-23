@@ -57,7 +57,7 @@ isGssCode = code => {
 }
 
 startsWithGssCode = code => {
-  return (typeof code === string) && gss[code.slice(0,3)]
+  return (typeof code === 'string') && gss[code.slice(0,3)]
 }
 
 whatIs = code => {

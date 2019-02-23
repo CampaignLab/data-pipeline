@@ -1,6 +1,15 @@
 ## js-xlsx
 
+To test it:
+```
+cd transformers/js-xlsx
+node -e 'console.log(require("./GSS-decoders").whatIs("W15123456"))'
+```
+where `W15123456` is your GSS code.
+
+
 #### A specific transformer built on general code.
+
 
 Uses `xlsx-style`, a fork of SheetJS, to read in .xlsx /.xls
 
