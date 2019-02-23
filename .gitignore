@@ -1,3 +1,11 @@
+
+node_modules
+
+*.csv
+*.csv#
+*.xlsx
+*.xls
+*.pyc
 .Rproj.user
 .Rhistory
 .RData
