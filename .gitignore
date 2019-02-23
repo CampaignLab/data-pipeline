@@ -1,6 +1,14 @@
+
 node_modules
 
 *.csv
 *.csv#
 *.xlsx
 *.xls
+
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+*.Rproj
+*.ipynb_checkpoints*
