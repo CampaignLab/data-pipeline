@@ -4,6 +4,9 @@ const Gb=Mb*1024;
 
 let district;
 
+// Instructions for updating this file:
+// https://github.com/morkeltry/GSScode-converter/blob/master/js-xlsx/HOW%20TO%20USE%20INVENTORY%20PROPERTY%20NAMES.md
+
 // Warning: may change format at some point to:
 //
 // Inventory = function() {
