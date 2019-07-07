@@ -39,6 +39,7 @@ def make_rows(poll_open_date, election_type):
     pages = JsonApiPaginator(
         EE_BASE + "elections/?poll_open_date={}".format(poll_open_date), get_next_page
     )
+
     for url, page in pages:
         print("🔍 searching {} ...".format(url))
         ballots = [
@@ -51,6 +52,7 @@ def make_rows(poll_open_date, election_type):
         for ballot in ballots:
             rows.append(make_row(ballot))
         sleep(2)  # have a little sleep so we don't hammer the API too much
+
     return rows
 
 
@@ -62,11 +64,11 @@ def make_ballot_to_gss_csv(poll_open_date, election_type, filename):
         os.makedirs(directory)
 
     write_csv(
-        os.path.abspath(os.path.join(directory, filename)),
+        os.path.join(directory, filename),
         ["ballot_id", "gss_code"],
         rows,
     )
 
 
 if __name__ == "__main__":
-    make_ballot_to_gss_csv("2018-05-03", "local", "id_to_gss_local.2018-05-03.csv")
+    make_ballot_to_gss_csv("2018-05-03", "local", "../data/id_to_gss_local.2018-05-03.csv")

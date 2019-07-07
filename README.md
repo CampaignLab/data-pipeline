@@ -12,9 +12,9 @@
 * The transformer should be able to be run in a machine locally, downloading the data and transforming it into a CSV (later importing it into a local database).
 * To contribute:
 
-* 1. Open an Issue with the name of the issue formatted as *description-rowIdentifier*, where description and rowIdentifier are what is in the excel spreadsheet "Campaign Lab Data Inventory".
-* 2. Write a small description of which dataset you are trying to transform and create a schema for.
-* 3. Open a Pull Request (create a branch with an appropriate name) when you're finished
+    1. Open an Issue with the name of the issue formatted as *description-rowIdentifier*, where description and rowIdentifier are what is in the excel spreadsheet "Campaign Lab Data Inventory".
+    2. Write a small description of which dataset you are trying to transform and create a schema for.
+    3. Open a Pull Request (create a branch with an appropriate name) when you're finished
 
 ### Formatting
 
