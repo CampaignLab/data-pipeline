@@ -1,0 +1,18 @@
+{
+  "name": "js-geography-transformers",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.mjs",
+  "dependencies": {
+    "csv-reader": "^1.0.3",
+    "webcharts": "^1.10.0",
+    "xlsx-style": "^0.8.13"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node --experimental-modules index.mjs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
