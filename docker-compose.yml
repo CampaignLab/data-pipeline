@@ -1,0 +1,33 @@
+version: '3.1'
+services:
+  datascience:
+    image: civisanalytics/datascience-python:4.2.0
+    container_name: datascience-python
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./:/pipeline
+    working_dir: "/pipeline/transformers"
+    tty: true
+    # Keep container running idle.
+    command: [ "/bin/sh", "-c", "pip install elasticsearch-loader; tail -f /dev/null"]
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.6.0
+    container_name: elasticsearch
+    ports:
+      - "9200:9200"
+    environment:
+      CLUSTER_NAME: "campaignlab"
+      HTTP_PORT: "9200"
+      DISCOVERY_TYPE: "single-node"
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana-oss:6.6.0
+    container_name: kibana
+    ports:
+      - "5601:5601"
+      - "8080:8080"
+    environment:
+      SERVER_NAME: "kibana"
+      ELASTICSEARCH_HOSTS: "http://elasticsearch:9200"
